@@ -34,27 +34,15 @@ pipeline {
         }
         stage('Build') {
             steps {
-<<<<<<< HEAD
-                sh "mvn package"
-            }
-        }
-        stage('Publish Artifacts') {
-            steps {
-                withMaven(globalMavenSettingsConfig: 'maven-Settings', jdk: 'jdk', maven: 'maven', mavenSettingsConfig: '', traceability: true) {
-                        sh "mvn deploy"
-                }
-=======
                 sh "mvn clean package"
->>>>>>> 3c20b84 (Removed Nexus repository config)
             }
         }
-        
         stage('Docker Build & Tag') {
             steps {
-                script{
-                withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
-                sh "docker build -t renita7008/blogging-app ."
-                }
+                script {
+                    withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
+                        sh "docker build -t renita7008/blogging-app ."
+                    }
                 }
             }
         }
@@ -65,16 +53,16 @@ pipeline {
         }
         stage('Docker Push Image') {
             steps {
-                script{
-                withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
-                    sh "docker push renita7008/blogging-app"
-                }
+                script {
+                    withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/') {
+                        sh "docker push renita7008/blogging-app"
+                    }
                 }
             }
         }
         stage('K8s Deploy') {
             steps {
-               withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: ' devopsshack-cluster', contextName: '', credentialsId: 'k8s-token', namespace: 'webapps', serverUrl: 'https://AD1D9143EC6B3C8A72B36759FA28854D.gr7.eu-west-2.eks.amazonaws.com']]) {
+                withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'devopsshack-cluster', contextName: '', credentialsId: 'k8s-token', namespace: 'webapps', serverUrl: 'https://AD1D9143EC6B3C8A72B36759FA28854D.gr7.eu-west-2.eks.amazonaws.com']]) {
                     sh "kubectl apply -f deployment-service.yml"
                     sleep 20
                 }
@@ -82,15 +70,15 @@ pipeline {
         }
         stage('Verify Deployment') {
             steps {
-               withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: ' devopsshack-cluster', contextName: '', credentialsId: 'k8s-token', namespace: 'webapps', serverUrl: 'https://AD1D9143EC6B3C8A72B36759FA28854D.gr7.eu-west-2.eks.amazonaws.com']]) {
+                withKubeCredentials(kubectlCredentials: [[caCertificate: '', clusterName: 'devopsshack-cluster', contextName: '', credentialsId: 'k8s-token', namespace: 'webapps', serverUrl: 'https://AD1D9143EC6B3C8A72B36759FA28854D.gr7.eu-west-2.eks.amazonaws.com']]) {
                     sh "kubectl get pods"
                     sh "kubectl get service"
                 }
             }
         }
-        
     }  // Closing stages
 }  // Closing pipeline
+
 post {
     always {
         script {
@@ -99,7 +87,7 @@ post {
             def buildNumber = env.BUILD_NUMBER
             def pipelineStatus = currentBuild.result ?: 'UNKNOWN'
             pipelineStatus = pipelineStatus.toUpperCase()
-            
+
             // Set the banner color based on the status
             def bannerColor = pipelineStatus == 'SUCCESS' ? 'green' : 'red'
 
@@ -129,3 +117,4 @@ post {
         }
     }
 }
+
