@@ -34,6 +34,7 @@ pipeline {
         }
         stage('Build') {
             steps {
+<<<<<<< HEAD
                 sh "mvn package"
             }
         }
@@ -42,8 +43,12 @@ pipeline {
                 withMaven(globalMavenSettingsConfig: 'maven-Settings', jdk: 'jdk', maven: 'maven', mavenSettingsConfig: '', traceability: true) {
                         sh "mvn deploy"
                 }
+=======
+                sh "mvn clean package"
+>>>>>>> 3c20b84 (Removed Nexus repository config)
             }
         }
+        
         stage('Docker Build & Tag') {
             steps {
                 script{
@@ -124,4 +129,3 @@ post {
         }
     }
 }
-
